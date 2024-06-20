@@ -110,3 +110,119 @@ function uploadFile(file) {
     }, 4000);
 }
 
+
+
+
+
+
+
+const blueBtn = document.querySelector('.blue');
+const pinkBtn = document.querySelector('.pink');
+const yellowBtn = document.querySelector('.yellow');
+const umbrellaNode = document.getElementById('umbrella');
+const loaderNode = document.getElementById('loader');
+const uploadBtn = document.getElementById('upload-btn');
+
+const loaderSrc = "./assets/svg/loader_icon.svg";
+const uploadSrc = "./assets/svg/upload_icon.svg";
+
+const imageAndColourChange = [
+    {   
+        btn: blueBtn,
+        bgColor: '#ccffe6',
+        uploadBtnColor: '#0095e3',
+        umbrellaImg: './assets/images/Blue umbrella.png',
+    },
+    {
+        btn: yellowBtn,
+        bgColor: '#ffff99',
+        uploadBtnColor: 'yellow',
+        umbrellaImg: './assets/images/Yellow umbrella.png',
+    },
+    {
+        btn: pinkBtn,
+        bgColor: '#ffe6e6',
+        uploadBtnColor: '#db3c91',
+        umbrellaImg: './assets/images/Pink umbrella.png',
+    }
+];
+
+function updateUI(bgColor, uploadBtnColor, umbrellaImg) {
+    document.body.style.background = bgColor;
+    uploadBtn.style.background = uploadBtnColor;
+    document.querySelector('.umbrella-img').src = umbrellaImg;
+}
+
+function toggleLoader(showLoader) {
+    if (showLoader) {
+        if (umbrellaNode) umbrellaNode.classList.add('hide');
+        if (loaderNode) loaderNode.classList.remove('hide');
+    } else {
+        if (loaderNode) loaderNode.classList.add('hide');
+        if (umbrellaNode) umbrellaNode.classList.remove('hide');
+    }
+}
+
+imageAndColourChange.forEach(({btn, bgColor, uploadBtnColor, umbrellaImg}) => {
+    btn.addEventListener('click', () => {
+        toggleLoader(true);
+        setTimeout(() => {
+            toggleLoader(false);
+            updateUI(bgColor, uploadBtnColor, umbrellaImg);
+        }, 4000);
+    });
+});
+
+uploadBtn.querySelector('#file').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const fileSize = file.size;
+        const fileName = file.name;
+        console.log("File name:", fileName);
+        console.log("File size:", fileSize);
+
+        const validExtensions = /(\.png|\.jpg|\.jpeg)$/i;
+        const fileSizeInMb = Math.round((fileSize / (1024 * 1024)));
+        console.log("Actual Size in MB : ", fileSizeInMb);
+
+        if (fileName.match(validExtensions)) {
+            if (fileSizeInMb <= 5) {
+                uploadFile(file);
+            } else {
+                alert("File size should be less than or equal to 5MB");
+            }
+        } else {
+            alert("Invalid file type. Please upload .png, .jpg, .jpeg files only");
+        }
+    } else {
+        console.log("No file selected.");
+    }
+});
+
+function uploadFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        const previewContainer = document.getElementById('uploadImagePreview');
+        if (previewContainer) {
+            previewContainer.innerHTML = ''; // Clear any existing content
+            previewContainer.appendChild(img);
+        }
+    };
+
+    reader.readAsDataURL(file);
+
+    toggleLoader(true);
+    document.getElementById('uploadIcon').classList.add('loaderIcon');
+    document.getElementById('uploadIcon').src = loaderSrc;
+    document.getElementById('uploadText').innerHTML = file.name;
+    console.log("fileName : ", file.name);
+
+    setTimeout(() => {
+        toggleLoader(false);
+        document.getElementById('uploadIcon').classList.remove('loaderIcon');
+        document.getElementById('uploadIcon').src = uploadSrc;
+    }, 4000);
+        }
+
